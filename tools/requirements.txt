@@ -1,0 +1,40 @@
+# 校歌データ収集ツール 依存関係
+# Python 3.8+ required
+
+# Web scraping and data processing
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+pandas>=2.0.0
+
+# Google APIs
+google-api-python-client>=2.100.0
+google-auth-httplib2>=0.1.0
+google-auth-oauthlib>=1.0.0
+gspread>=5.10.0
+
+# Data validation and quality
+jsonschema>=4.19.0
+pydantic>=2.0.0
+
+# Progress and logging
+tqdm>=4.65.0
+colorama>=0.4.6
+
+# Development and testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+black>=23.7.0
+flake8>=6.0.0
+
+# Optional: Advanced text processing
+nltk>=3.8.0
+mecab-python3>=1.0.6
+
+# Optional: Database support
+sqlite3  # Built-in
+sqlalchemy>=2.0.0
+
+# Optional: Performance
+multiprocessing-logging>=0.3.4
+concurrent-futures>=3.1.1
