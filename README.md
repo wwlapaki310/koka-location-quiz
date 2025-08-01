@@ -9,6 +9,59 @@
 - 地図を見ながら（検索機能は使わず）どの学校かを予想
 - 3回勝負でスコアを競う
 
+## 🚀 **現在の状況（2025年8月更新）**
+
+### ✅ **MVP完成済み**
+`/mvp` フォルダに基本的なクイズアプリが実装済みです：
+
+**実装済み機能：**
+- ✅ React + Vite + TypeScript + Tailwind CSS
+- ✅ 4択クイズシステム
+- ✅ 5校分のサンプルデータ
+- ✅ スコア表示・ゲーム進行
+- ✅ レスポンシブデザイン
+
+**技術スタック（確定）：**
+```javascript
+{
+  "frontend": "React + Vite + TypeScript",
+  "styling": "Tailwind CSS",
+  "icons": "Lucide React",
+  "deployment": "Vercel Ready"
+}
+```
+
+### 🎯 **次のステップ - 地図中心UI改善**
+[**Issue #7**](../../issues/7) で詳細を管理中：
+
+**課題：**
+- 現在は4択がメインで、本来の面白さ「地図から探す」が活かされていない
+- 校歌の全文が読めない（マスク済みのみ）
+- ヒント機能がなく難易度調整ができない
+
+**改善方針：**
+```
+校歌全文表示 → 地図で回答（メイン） → 困ったらヒント（4択表示）
+```
+
+**実装予定：**
+- 🗺️ 地図機能をメインUIに（Leaflet + OpenStreetMap）
+- 📖 校歌全文表示機能
+- 💡 段階的ヒント機能（都道府県→地域→4択）
+- 📊 ヒント使用によるスコア調整
+
+### 🎮 ゲーム体験の進化
+
+**現在のMVP:**
+```
+歌詞（マスク済み）→ 4択選択 → 結果表示
+```
+
+**目指す体験:**
+```
+歌詞（全文）→ 地図で推測 → [ヒント1: 都道府県] → [ヒント2: 地域] → [ヒント3: 4択] → 結果表示
+```
+
 ## 🎯 プロジェクト目標
 
 1. **教育的価値**: 日本の地理・文化への理解促進
@@ -52,105 +105,99 @@
 - **国立国会図書館**: 校歌関連資料多数
 - **地方自治体**: 各地域の校歌集が存在
 
-## 🏗️ システムアーキテクチャ（検討中）
+## 🏗️ システムアーキテクチャ
 
-### 技術スタック候補
+### 確定済み技術スタック
 
-#### フロントエンド
-- **Web**: React/Next.js + TypeScript
-- **モバイル**: React Native または Flutter
-- **UI/UX**: Tailwind CSS, Material Design
+#### フロントエンド（実装済み）
+- **Web**: React + Vite + TypeScript
+- **UI/UX**: Tailwind CSS
+- **アイコン**: Lucide React
 
-#### バックエンド
-- **API**: Node.js + Express または Python + FastAPI
+#### 追加予定技術
+- **地図**: React Leaflet + OpenStreetMap
+- **状態管理**: React Hooks（useState, useEffect）
+- **デプロイ**: Vercel
+
+#### 将来検討
+- **バックエンド**: Node.js + Express または Python + FastAPI
 - **データベース**: PostgreSQL + Redis（キャッシュ）
 - **認証**: Firebase Auth または Auth0
 
-#### インフラ
-- **ホスティング**: Vercel/Netlify（フロント）, Railway/Heroku（バック）
-- **CDN**: Cloudflare
-- **モニタリング**: Sentry
-
-### データ構造設計
+### データ構造設計（更新版）
 
 ```typescript
-interface School {
-  id: string;
-  name: string;
-  type: 'public' | 'private' | 'national';
+interface SchoolData {
+  id: number;
+  schoolName: string;
   prefecture: string;
   city: string;
-  coordinates: {
+  address: string;
+  coordinates: {        // 新規追加予定
     lat: number;
     lng: number;
   };
-  establishedYear: number;
-}
-
-interface SchoolSong {
-  id: string;
-  schoolId: string;
-  title: string;
-  lyrics: string;
-  composer?: string;
-  lyricist?: string;
-  composedYear?: number;
+  songTitle: string;
+  lyrics: string;       // 全文歌詞（新規追加予定）
+  maskedLyrics: string; // 既存のマスク済み
   difficulty: 'easy' | 'medium' | 'hard';
-}
-
-interface QuizQuestion {
-  id: string;
-  songId: string;
-  maskedLyrics: string; // 学校名等を伏せた歌詞
-  choices: School[];
-  correctAnswerId: string;
+  notes: string;
+  hints: {              // 新規追加予定
+    prefecture: string; // 都道府県ヒント
+    region: string;     // 地域ヒント  
+    landmark: string;   // 地理的特徴ヒント
+  };
 }
 ```
 
-## 🎮 ゲーム仕様（検討中）
+## 🎮 ゲーム仕様
 
-### 基本ゲームフロー
-1. **難易度選択**: Easy/Medium/Hard
-2. **問題数選択**: 3問/5問/10問
-3. **地域選択**: 全国/地方別/都道府県別
-4. **クイズ実行**: 
-   - 校歌歌詞表示（学校名マスク）
-   - 地図表示
-   - 選択肢表示（4択）
-   - 制限時間（60秒/問）
-5. **結果表示**: スコア、正解率、解説
+### 現在のMVP仕様
+1. **ゲーム開始画面**: ルール説明とスタートボタン
+2. **クイズ画面**: 
+   - マスク済み校歌歌詞表示
+   - 4択選択肢（学校名）
+   - 難易度表示
+3. **結果画面**: 正解・不正解、学校情報、スコア
+4. **最終結果**: 5問完了後の総合スコア
+
+### 次期バージョン仕様（Issue #7）
+1. **校歌全文表示**: 学校名も含む完全版歌詞
+2. **地図メインUI**: 
+   - 左側：歌詞表示
+   - 右側：日本地図（メインエリア）
+   - 下部：ヒント・操作ボタン
+3. **段階的ヒント機能**:
+   - ヒント1：都道府県レベル（-20点）
+   - ヒント2：地域・市レベル（-40点）
+   - ヒント3：4択表示（-60点）
+4. **地図回答**: クリックした地点での正解判定
 
 ### 難易度設定
 - **Easy**: 有名な地名・特徴的な自然環境が歌詞に含まれる
 - **Medium**: 一般的な地理的特徴
 - **Hard**: 抽象的表現や歴史的背景が中心
 
-### ゲーム性向上要素
-- **スコアシステム**: 正解率×回答速度
-- **ランキング機能**: 週間/月間/年間
-- **実績システム**: バッジ・称号獲得
-- **学習機能**: 間違えた問題の復習
-- **SNS連携**: 結果シェア
+## 🚀 開発フェーズ（更新版）
 
-## 🚀 開発フェーズ
+### ~~Phase 1: 基盤構築~~ ✅ **完了**
+- [x] 技術選定確定（React + Vite + TypeScript）
+- [x] 開発環境構築
+- [x] 基本UI/UXデザイン
+- [x] MVPアプリ実装
 
-### Phase 1: 基盤構築（4週間）
-- [ ] 技術選定確定
-- [ ] 開発環境構築
-- [ ] データベース設計
-- [ ] 基本UI/UXデザイン
+### Phase 2: UI/UX改善（進行中）
+**Issue #7で管理中**
+- [ ] 地図機能実装（React Leaflet）
+- [ ] レイアウト再設計（歌詞+地図）
+- [ ] 校歌全文表示機能
+- [ ] 段階的ヒント機能
 
-### Phase 2: データ収集・整備（6週間）
-- [ ] 校歌データの収集・整理
-- [ ] 学校位置情報の統合
-- [ ] データクレンジング・正規化
-- [ ] 著作権調査・クリア
-
-### Phase 3: コアゲーム開発（8週間）
-- [ ] クイズエンジン実装
-- [ ] 地図連携機能
-- [ ] ゲームロジック実装
-- [ ] スコアリングシステム
+### Phase 3: データ拡張（4週間）
+- [ ] 学校座標データの追加
+- [ ] 校歌全文データの収集・整理
+- [ ] ヒントデータの作成
+- [ ] データ品質向上
 
 ### Phase 4: 機能拡張（6週間）
 - [ ] ユーザー認証
@@ -161,7 +208,7 @@ interface QuizQuestion {
 ### Phase 5: テスト・リリース（4週間）
 - [ ] 総合テスト
 - [ ] パフォーマンス最適化
-- [ ] リリース準備
+- [ ] 本格リリース
 - [ ] 運用保守体制構築
 
 ## ⚖️ 課題・リスク
@@ -227,8 +274,20 @@ interface QuizQuestion {
 - 週次レビュー実施
 - マイルストーン設定
 
+## 📱 アプリケーション実行方法
+
+```bash
+# MVPアプリの起動
+cd mvp
+npm install
+npm run dev
+```
+
+ブラウザで `http://localhost:5173` にアクセス
+
 ---
 
 **最終更新**: 2025年8月1日  
-**ステータス**: 企画検討段階  
-**次のアクション**: Phase 1の詳細計画策定
+**ステータス**: MVP完成済み、UI改善フェーズ進行中  
+**次のアクション**: Issue #7（地図中心UI改善）の実装  
+**現在のマイルストーン**: 地図機能実装とヒント機能追加
