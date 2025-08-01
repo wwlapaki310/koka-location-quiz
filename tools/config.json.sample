@@ -1,0 +1,31 @@
+{
+  "google_api_key": "YOUR_GOOGLE_API_KEY_HERE",
+  "google_search_engine_id": "YOUR_CUSTOM_SEARCH_ENGINE_ID",
+  "delay_seconds": 2,
+  "max_schools_per_prefecture": 50,
+  "output_directory": "./data",
+  "quality_threshold": 0.7,
+  "retry_attempts": 3,
+  "prefectures_priority": [
+    "東京都",
+    "神奈川県", 
+    "大阪府",
+    "愛知県",
+    "福岡県",
+    "埼玉県",
+    "千葉県",
+    "兵庫県",
+    "京都府",
+    "静岡県"
+  ],
+  "school_types": [
+    "中学校",
+    "高等学校", 
+    "小学校"
+  ],
+  "establishment_types": [
+    "公立",
+    "私立",
+    "国立"
+  ]
+}
