@@ -3,6 +3,9 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaf
 import L from 'leaflet';
 import { Shuffle, MapPin, CheckCircle, XCircle, Star, HelpCircle, Eye, Map } from 'lucide-react';
 
+// 拡張データのインポート
+import { extendedSchoolData, type SchoolData } from './data/extendedSchoolData';
+
 // Leafletアイコンの修正（Viteの問題対応）
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -10,29 +13,6 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
-
-// 型定義
-interface SchoolData {
-  id: number;
-  schoolName: string;
-  prefecture: string;
-  city: string;
-  address: string;
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
-  songTitle: string;
-  lyrics: string;           // 全文歌詞
-  maskedLyrics: string;     // マスク済み歌詞
-  difficulty: 'easy' | 'medium' | 'hard';
-  notes: string;
-  hints: {
-    prefecture: string;     // 都道府県ヒント
-    region: string;         // 地域ヒント
-    landmark: string;       // 地理的特徴ヒント
-  };
-}
 
 interface QuizQuestion {
   correct: SchoolData;
@@ -49,100 +29,6 @@ function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number
   });
   return null;
 }
-
-// 拡張されたサンプルデータ
-const sampleData: SchoolData[] = [
-  {
-    id: 1,
-    schoolName: "東京都立戸山高等学校",
-    prefecture: "東京都",
-    city: "新宿区",
-    address: "戸山3-19-1",
-    coordinates: { lat: 35.7019, lng: 139.7174 },
-    songTitle: "校歌",
-    lyrics: "朝日輝く戸山の丘に 学び舎建てて百年余り 若き血潮は雲を呼びつつ 理想の峰を目指しゆく われら誇らん戸山健児",
-    maskedLyrics: "朝日輝く〇〇の丘に 学び舎建てて百年余り 若き血潮は雲を呼びつつ 理想の峰を目指しゆく われら誇らん〇〇健児",
-    difficulty: "medium",
-    notes: "1888年開校の伝統校",
-    hints: {
-      prefecture: "関東地方の中心都市",
-      region: "山手線内側の文教地区",
-      landmark: "早稲田大学に近い高台の住宅地"
-    }
-  },
-  {
-    id: 2,
-    schoolName: "大阪府立北野高等学校",
-    prefecture: "大阪府",
-    city: "大阪市淀川区",
-    address: "新北野2-5-13",
-    coordinates: { lat: 34.7209, lng: 135.4606 },
-    songTitle: "校歌",
-    lyrics: "淀川清く流るる岸辺 北野の丘に学び舎あり 自由闊達の気風を受けて 真理探究に励みけり われら北野の誇りもて",
-    maskedLyrics: "〇〇川清く流るる岸辺 〇〇の丘に学び舎あり 自由闊達の気風を受けて 真理探究に励みけり われら〇〇の誇りもて",
-    difficulty: "hard",
-    notes: "1873年開校、関西屈指の進学校",
-    hints: {
-      prefecture: "関西地方の中心府",
-      region: "大きな川が流れる北部地域",
-      landmark: "大阪市北部、淀川沿いの文教地区"
-    }
-  },
-  {
-    id: 3,
-    schoolName: "福岡県立修猷館高等学校",
-    prefecture: "福岡県",
-    city: "福岡市早良区",
-    address: "西新2-20-1",
-    coordinates: { lat: 33.5847, lng: 130.3558 },
-    songTitle: "校歌",
-    lyrics: "筑紫野に立つ修猷館 博多の街を見下ろして 文武両道の道を歩み 九州男児の意気高し われら修猷の伝統を",
-    maskedLyrics: "〇〇野に立つ〇〇館 〇〇の街を見下ろして 文武両道の道を歩み 九州男児の意気高し われら〇〇の伝統を",
-    difficulty: "hard",
-    notes: "1885年開校、九州の名門校",
-    hints: {
-      prefecture: "九州北部の中心県",
-      region: "古くから大陸との交流拠点",
-      landmark: "福岡市西部、海に近い文教地区"
-    }
-  },
-  {
-    id: 4,
-    schoolName: "愛知県立旭丘高等学校",
-    prefecture: "愛知県",
-    city: "名古屋市東区",
-    address: "出来町3-6-15",
-    coordinates: { lat: 35.1851, lng: 136.9348 },
-    songTitle: "校歌",
-    lyrics: "名古屋城下の旭丘 朝日さしそう学び舎に 尾張平野を見渡して 中部の雄たる意気を持ち われら旭丘健児なり",
-    maskedLyrics: "〇〇城下の〇〇丘 朝日さしそう学び舎に 〇〇平野を見渡して 中部の雄たる意気を持ち われら〇〇健児なり",
-    difficulty: "medium",
-    notes: "1906年開校、中部地方の名門校",
-    hints: {
-      prefecture: "中部地方の中心県",
-      region: "戦国時代の有力武将の拠点",
-      landmark: "名古屋市中心部、城の近くの丘陵地"
-    }
-  },
-  {
-    id: 5,
-    schoolName: "神奈川県立横浜翠嵐高等学校",
-    prefecture: "神奈川県",
-    city: "横浜市神奈川区",
-    address: "三ツ沢南町1-1",
-    coordinates: { lat: 35.4758, lng: 139.6136 },
-    songTitle: "校歌",
-    lyrics: "港の見える丘の上 翠嵐吹きて青春の 夢は大きく海を越え 国際都市の風受けて われら翠嵐誇らん",
-    maskedLyrics: "港の見える丘の上 〇〇吹きて青春の 夢は大きく海を越え 国際都市の風受けて われら〇〇誇らん",
-    difficulty: "easy",
-    notes: "1914年開校、国際港都の名門校",
-    hints: {
-      prefecture: "関東地方南部の県",
-      region: "国際的な港湾都市",
-      landmark: "横浜港を見下ろす高台の住宅地"
-    }
-  }
-];
 
 // クイズロジック
 const generateQuestion = (data: SchoolData[]): QuizQuestion => {
@@ -211,7 +97,7 @@ export default function App() {
 
   // 新しい問題を生成
   const generateNewQuestion = () => {
-    const question = generateQuestion(sampleData);
+    const question = generateQuestion(extendedSchoolData); // 拡張データを使用
     setCurrentQuestion(question);
     setSelectedAnswer(null);
     setShowResult(false);
@@ -319,13 +205,32 @@ export default function App() {
           </div>
           
           <div className="mb-8 p-6 bg-gray-50 rounded-xl">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">🆕 新機能搭載！</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">🎉 データ大幅拡張！</h2>
             <ul className="text-sm text-gray-600 space-y-2 text-left">
-              <li>📖 <strong>校歌全文表示</strong>：学校名も含む完全版が読める</li>
-              <li>🗺️ <strong>地図回答機能</strong>：地図上をクリックして回答可能</li>
+              <li>📊 <strong>20校のデータ</strong>：全国各地から厳選</li>
+              <li>🗾 <strong>全国網羅</strong>：北海道から沖縄まで</li>
+              <li>📖 <strong>校歌全文表示</strong>：学校名も含む完全版</li>
+              <li>🗺️ <strong>地図回答機能</strong>：地図上をクリックして回答</li>
               <li>💡 <strong>段階的ヒント機能</strong>：困ったらヒントを活用</li>
               <li>📊 <strong>スコア調整</strong>：地図回答でボーナス、ヒント使用で減点</li>
             </ul>
+          </div>
+          
+          <div className="mb-6 p-4 bg-blue-50 rounded-xl">
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div>
+                <div className="font-bold text-green-600">10校</div>
+                <div className="text-gray-600">初級</div>
+              </div>
+              <div>
+                <div className="font-bold text-yellow-600">9校</div>
+                <div className="text-gray-600">中級</div>
+              </div>
+              <div>
+                <div className="font-bold text-red-600">1校</div>
+                <div className="text-gray-600">上級</div>
+              </div>
+            </div>
           </div>
           
           <button
@@ -348,10 +253,10 @@ export default function App() {
             <h1 className="text-3xl font-bold text-gray-800 mb-4">ゲーム終了！</h1>
             <div className="text-6xl font-bold text-blue-600 mb-2">{score}/500</div>
             <p className="text-lg text-gray-600">
-              {score >= 400 ? '完璧です！' : 
-               score >= 300 ? 'よくできました！' : 
-               score >= 200 ? 'もう少し頑張りましょう！' : 
-               '次回頑張ってください！'}
+              {score >= 400 ? '素晴らしい！日本地理マスター！' : 
+               score >= 300 ? 'よくできました！地理の知識豊富ですね' : 
+               score >= 200 ? '健闘しました！もう少し頑張りましょう' : 
+               'お疲れ様でした！次回に期待！'}
             </p>
           </div>
           
@@ -364,6 +269,21 @@ export default function App() {
               <div>
                 <div className="text-gray-500">平均スコア</div>
                 <div className="text-xl font-bold text-blue-600">{Math.round(score/5)}点/問</div>
+              </div>
+            </div>
+            
+            <div className="mt-4 text-center">
+              <div className="text-xs text-gray-500 mb-1">あなたのレベル</div>
+              <div className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${
+                score >= 400 ? 'bg-purple-100 text-purple-800' :
+                score >= 300 ? 'bg-blue-100 text-blue-800' :
+                score >= 200 ? 'bg-green-100 text-green-800' :
+                'bg-gray-100 text-gray-800'
+              }`}>
+                {score >= 400 ? '🏆 校歌マスター' :
+                 score >= 300 ? '🥇 地理博士' :
+                 score >= 200 ? '🥈 地理探検家' :
+                 '🥉 地理チャレンジャー'}
               </div>
             </div>
           </div>
