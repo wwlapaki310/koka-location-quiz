@@ -1,11 +1,16 @@
 # 校歌データ収集ツール 依存関係
 # Python 3.8+ required
+# ✨ Phase 2B対応：進捗監視・可視化機能拡張
+
+# Core dependencies
+python-dateutil>=2.8.0
 
 # Web scraping and data processing
 requests>=2.31.0
 beautifulsoup4>=4.12.0
 lxml>=4.9.0
 pandas>=2.0.0
+numpy>=1.24.0
 
 # Google APIs
 google-api-python-client>=2.100.0
@@ -21,6 +26,19 @@ pydantic>=2.0.0
 tqdm>=4.65.0
 colorama>=0.4.6
 
+# ✨ NEW: Data visualization and dashboard
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.15.0
+
+# ✨ NEW: Advanced data analysis
+scipy>=1.11.0
+scikit-learn>=1.3.0
+
+# ✨ NEW: Enhanced file handling
+openpyxl>=3.1.0
+xlsxwriter>=3.1.0
+
 # Development and testing
 pytest>=7.4.0
 pytest-cov>=4.1.0
@@ -29,12 +47,28 @@ flake8>=6.0.0
 
 # Optional: Advanced text processing
 nltk>=3.8.0
-mecab-python3>=1.0.6
+# mecab-python3>=1.0.6  # Commented out for compatibility
 
 # Optional: Database support
-sqlite3  # Built-in
+# sqlite3  # Built-in, no need to install
 sqlalchemy>=2.0.0
 
-# Optional: Performance
-multiprocessing-logging>=0.3.4
-concurrent-futures>=3.1.1
+# Optional: Performance optimization
+# multiprocessing-logging>=0.3.4
+# concurrent-futures>=3.1.1  # Built-in in Python 3.8+
+
+# ✨ NEW: Configuration and utilities
+pyyaml>=6.0
+python-dotenv>=1.0.0
+click>=8.1.0
+
+# ✨ NEW: Error handling and monitoring
+sentry-sdk>=1.32.0
+
+# ✨ NEW: Geographic data processing
+geopy>=2.3.0
+
+# Package information
+# Total packages: ~25 core + optional
+# Installation size: ~500MB
+# Compatible with: Python 3.8+, Windows/macOS/Linux
