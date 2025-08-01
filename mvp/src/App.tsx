@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
 import { Shuffle, MapPin, CheckCircle, XCircle, Star, HelpCircle, Eye, Map } from 'lucide-react';
+
+// Leafletアイコンの修正（Viteの問題対応）
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 // 型定義
 interface SchoolData {
@@ -28,6 +38,16 @@ interface QuizQuestion {
   correct: SchoolData;
   choices: SchoolData[];
   maskedLyrics: string;
+}
+
+// 地図クリックハンドラーコンポーネント
+function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
+  useMapEvents({
+    click: (e) => {
+      onMapClick(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return null;
 }
 
 // 拡張されたサンプルデータ
@@ -140,6 +160,19 @@ const generateQuestion = (data: SchoolData[]): QuizQuestion => {
   };
 };
 
+// 地図上の距離計算（キロメートル）
+const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+  const R = 6371; // 地球の半径（キロメートル）
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLng/2) * Math.sin(dLng/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+};
+
 // 難易度に応じた色
 const getDifficultyColor = (difficulty: string) => {
   switch (difficulty) {
@@ -171,6 +204,10 @@ export default function App() {
   const [showFullLyrics, setShowFullLyrics] = useState(false);
   const [hintsUsed, setHintsUsed] = useState<number>(0);
   const [showHints, setShowHints] = useState<boolean[]>([false, false, false]);
+  
+  // 地図関連の状態
+  const [clickedPosition, setClickedPosition] = useState<{lat: number, lng: number} | null>(null);
+  const [mapAnswerMode, setMapAnswerMode] = useState<boolean>(false);
 
   // 新しい問題を生成
   const generateNewQuestion = () => {
@@ -181,6 +218,8 @@ export default function App() {
     setShowFullLyrics(false);
     setHintsUsed(0);
     setShowHints([false, false, false]);
+    setClickedPosition(null);
+    setMapAnswerMode(false);
   };
 
   // ゲーム開始
@@ -205,19 +244,51 @@ export default function App() {
   };
 
   // スコア計算（ヒント使用で減点）
-  const calculateScore = () => {
+  const calculateScore = (isMapAnswer: boolean = false) => {
     const baseScore = 100;
-    const penalty = hintsUsed * 20; // ヒント1つにつき20点減点
+    let penalty = hintsUsed * 20; // ヒント1つにつき20点減点
+    
+    // 地図で正解した場合はボーナス
+    if (isMapAnswer) {
+      penalty -= 20; // 地図回答ボーナス
+    }
+    
     return Math.max(baseScore - penalty, 20); // 最低20点
   };
 
-  // 回答処理
+  // 地図クリック処理
+  const handleMapClick = (lat: number, lng: number) => {
+    if (!currentQuestion || showResult) return;
+    
+    setClickedPosition({ lat, lng });
+    const distance = calculateDistance(
+      lat, lng, 
+      currentQuestion.correct.coordinates.lat, 
+      currentQuestion.correct.coordinates.lng
+    );
+    
+    // 50km以内なら正解とする
+    const isCorrect = distance <= 50;
+    
+    if (isCorrect) {
+      setSelectedAnswer(currentQuestion.correct);
+      setShowResult(true);
+      setScore(score + calculateScore(true));
+    } else {
+      // 地図で不正解の場合、少し待ってからリセット
+      setTimeout(() => {
+        setClickedPosition(null);
+      }, 2000);
+    }
+  };
+
+  // 選択肢による回答処理
   const handleAnswer = (selected: SchoolData) => {
     setSelectedAnswer(selected);
     setShowResult(true);
     
     if (selected.id === currentQuestion?.correct.id) {
-      setScore(score + calculateScore());
+      setScore(score + calculateScore(false));
     }
   };
 
@@ -248,12 +319,12 @@ export default function App() {
           </div>
           
           <div className="mb-8 p-6 bg-gray-50 rounded-xl">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">新機能追加！</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">🆕 新機能搭載！</h2>
             <ul className="text-sm text-gray-600 space-y-2 text-left">
               <li>📖 <strong>校歌全文表示</strong>：学校名も含む完全版が読める</li>
+              <li>🗺️ <strong>地図回答機能</strong>：地図上をクリックして回答可能</li>
               <li>💡 <strong>段階的ヒント機能</strong>：困ったらヒントを活用</li>
-              <li>📊 <strong>スコア調整</strong>：ヒント使用で減点あり</li>
-              <li>🗺️ <strong>地図機能（近日追加予定）</strong></li>
+              <li>📊 <strong>スコア調整</strong>：地図回答でボーナス、ヒント使用で減点</li>
             </ul>
           </div>
           
@@ -322,7 +393,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 p-4">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* ヘッダー */}
         <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
           <div className="flex justify-between items-center">
@@ -356,31 +427,84 @@ export default function App() {
             </div>
             
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <p className="text-gray-700 leading-relaxed text-center">
+              <p className="text-gray-700 leading-relaxed text-center text-lg">
                 「{showFullLyrics ? currentQuestion.correct.lyrics : currentQuestion.maskedLyrics}」
               </p>
             </div>
             
-            <p className="text-sm text-gray-600 text-center">
+            <p className="text-sm text-gray-600 text-center mb-4">
               この校歌はどの学校のものでしょうか？
             </p>
+            
+            <div className="text-center">
+              <button
+                onClick={() => setMapAnswerMode(!mapAnswerMode)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium mx-auto transition-colors ${
+                  mapAnswerMode 
+                    ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                    : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                }`}
+              >
+                <Map className="w-4 h-4" />
+                {mapAnswerMode ? '地図回答モード（ON）' : '地図で回答する'}
+              </button>
+            </div>
           </div>
 
-          {/* 右側：地図エリア（今後実装予定） */}
+          {/* 右側：地図エリア */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center gap-2 mb-4">
               <Map className="w-5 h-5 text-gray-600" />
-              <h2 className="text-lg font-semibold text-gray-800">地図表示</h2>
-              <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">近日実装</span>
+              <h2 className="text-lg font-semibold text-gray-800">日本地図</h2>
+              {mapAnswerMode && (
+                <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                  地図をクリックして回答
+                </span>
+              )}
             </div>
             
-            <div className="bg-gray-100 rounded-lg h-64 flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <Map className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">日本地図による回答機能</p>
-                <p className="text-xs">次のバージョンで実装予定</p>
-              </div>
+            <div className="h-80 rounded-lg overflow-hidden">
+              <MapContainer
+                center={[36.5, 138]}
+                zoom={5}
+                style={{ height: '100%', width: '100%' }}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                
+                {mapAnswerMode && !showResult && (
+                  <MapClickHandler onMapClick={handleMapClick} />
+                )}
+                
+                {/* クリックした位置にマーカー表示 */}
+                {clickedPosition && (
+                  <Marker position={[clickedPosition.lat, clickedPosition.lng]}>
+                    <Popup>
+                      クリックした位置<br />
+                      ({clickedPosition.lat.toFixed(4)}, {clickedPosition.lng.toFixed(4)})
+                    </Popup>
+                  </Marker>
+                )}
+                
+                {/* 結果表示時に正解の学校位置を表示 */}
+                {showResult && (
+                  <Marker position={[currentQuestion.correct.coordinates.lat, currentQuestion.correct.coordinates.lng]}>
+                    <Popup>
+                      <strong>{currentQuestion.correct.schoolName}</strong><br />
+                      {currentQuestion.correct.prefecture} {currentQuestion.correct.city}
+                    </Popup>
+                  </Marker>
+                )}
+              </MapContainer>
             </div>
+            
+            {mapAnswerMode && !showResult && (
+              <p className="text-sm text-gray-600 text-center mt-2">
+                💡 学校がありそうな場所を地図上でクリックしてください（50km以内で正解）
+              </p>
+            )}
           </div>
         </div>
 
@@ -442,11 +566,11 @@ export default function App() {
           </div>
         </div>
 
-        {/* 選択肢（4択をヒント的な位置に） */}
+        {/* 選択肢（4択） */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">選択肢から選ぶ</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">または選択肢から選ぶ</h3>
           
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             {currentQuestion.choices.map((choice, index) => (
               <button
                 key={choice.id}
@@ -493,7 +617,9 @@ export default function App() {
                   <CheckCircle className="w-12 h-12 mx-auto mb-2" />
                   <h3 className="text-xl font-bold">正解です！</h3>
                   <p className="text-sm text-gray-600 mt-1">
-                    獲得スコア: {calculateScore()}点 {hintsUsed > 0 && `(ヒント${hintsUsed}個使用)`}
+                    獲得スコア: {calculateScore(clickedPosition !== null)}点 
+                    {clickedPosition && ' (地図回答ボーナス)'}
+                    {hintsUsed > 0 && ` (ヒント${hintsUsed}個使用)`}
                   </p>
                 </div>
               ) : (
