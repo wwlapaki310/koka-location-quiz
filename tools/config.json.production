@@ -1,0 +1,85 @@
+{
+  "google_custom_search_api_key": "YOUR_API_KEY_HERE",
+  "google_custom_search_engine_id": "YOUR_SEARCH_ENGINE_ID",
+  "google_geocoding_api_key": "YOUR_API_KEY_HERE",
+  "google_sheets_credentials_file": "./credentials.json",
+  "google_sheets_id": "1ukF5ZhpwJkN21wHLTaTS13BYTk5puKPisdQ1fGR5BwE",
+  "google_sheets_url": "https://docs.google.com/spreadsheets/d/1ukF5ZhpwJkN21wHLTaTS13BYTk5puKPisdQ1fGR5BwE/edit?usp=sharing",
+  "delay_seconds": 2,
+  "max_schools_per_prefecture": 50,
+  "output_directory": "./data",
+  "quality_threshold": 0.7,
+  "retry_attempts": 3,
+  "api_quotas": {
+    "search_daily_limit": 100,
+    "geocoding_daily_limit": 2500
+  },
+  "prefectures_priority": [
+    "東京都",
+    "神奈川県",
+    "埼玉県",
+    "千葉県",
+    "茨城県",
+    "栃木県",
+    "群馬県",
+    "大阪府",
+    "京都府",
+    "兵庫県",
+    "奈良県",
+    "滋賀県",
+    "和歌山県"
+  ],
+  "school_types": [
+    "中学校",
+    "高等学校",
+    "小学校"
+  ],
+  "establishment_types": [
+    "公立",
+    "私立",
+    "国立"
+  ],
+  "pilot_execution": {
+    "target_prefectures": {
+      "東京都": 20,
+      "神奈川県": 18,
+      "埼玉県": 15,
+      "千葉県": 15,
+      "茨城県": 12,
+      "栃木県": 10,
+      "群馬県": 10
+    },
+    "total_target": 100,
+    "quality_target_ab_rate": 80,
+    "success_rate_target": 70,
+    "time_limit_hours": 2
+  },
+  "spreadsheet_config": {
+    "main_sheet_name": "学校データ",
+    "progress_sheet_name": "進捗管理",
+    "quality_sheet_name": "品質分析",
+    "prefecture_sheet_name": "都道府県別統計",
+    "columns": {
+      "id": "A",
+      "school_name": "B", 
+      "prefecture": "C",
+      "city": "D",
+      "address": "E",
+      "latitude": "F",
+      "longitude": "G",
+      "song_title": "H",
+      "full_lyrics": "I",
+      "masked_lyrics": "J",
+      "composer": "K",
+      "lyricist": "L",
+      "difficulty": "M",
+      "quality_level": "N",
+      "quality_score": "O",
+      "data_source": "P",
+      "collection_date": "Q",
+      "hints_prefecture": "R",
+      "hints_region": "S",
+      "hints_landmark": "T"
+    }
+  }
+}
